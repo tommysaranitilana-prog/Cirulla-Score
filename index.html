@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#111">
+<title>Cirulla Score</title>
+<style>
+:root{--gap:8px;--radius:15px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#111;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}
+button{font:inherit}
+.app{height:100dvh;width:100vw;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.player{height:50%;position:relative;display:flex;flex-direction:column;align-items:center;padding:calc(env(safe-area-inset-top) + 8px) 10px calc(env(safe-area-inset-bottom) + 7px)}
+.player.blue{padding-top:7px;padding-bottom:calc(env(safe-area-inset-bottom) + 10px)}
+.red{background:linear-gradient(180deg,#d63a45,#a91f2b)}
+.blue{background:linear-gradient(180deg,#237fc3,#075693)}
+.label{font-size:12px;font-weight:900;letter-spacing:2px;opacity:.85}
+.score{font-size:clamp(65px,19vw,105px);font-weight:900;line-height:.82;letter-spacing:-4px;margin-top:6px;text-shadow:0 5px 15px #0003}
+.grid{width:100%;max-width:520px;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:auto}
+.card{position:relative;border:0;border-radius:var(--radius);min-height:clamp(48px,7.7vh,66px);background:#ffffff22;color:#fff;box-shadow:inset 0 1px #ffffff35,0 3px 9px #0002;font-weight:850;font-size:clamp(9px,2.6vw,13px);touch-action:manipulation}
+.card:active{transform:scale(.94);background:#fff4}
+.card.done{background:#ffffff3d}
+.card .val{display:block;font-size:clamp(15px,4vw,21px);margin-top:2px}
+.badge{position:absolute;top:4px;right:5px;border-radius:9px;padding:2px 5px;background:#0006;font-size:10px}
+.finish{position:absolute;z-index:50;left:50%;top:50%;transform:translate(-50%,-50%);width:82px;height:82px;border-radius:50%;border:4px solid #fff;background:#151515;color:#fff;font-size:18px;font-weight:950;box-shadow:0 8px 30px #0009;touch-action:manipulation}
+.finish:active{transform:translate(-50%,-50%) scale(.92)}
+.wins{position:absolute;right:7px;top:50%;transform:translateY(-50%);z-index:20;text-align:center;background:#0004;border:1px solid #fff2;border-radius:12px;padding:5px 7px;font-size:9px;backdrop-filter:blur(8px)}
+.wins b{display:block;font-size:15px}
+.pop{position:absolute;z-index:40;left:8px;right:8px;background:#181818f2;border:1px solid #fff3;border-radius:17px;padding:10px;display:none;box-shadow:0 12px 35px #0009;backdrop-filter:blur(15px)}
+.pop.open{display:block}
+.red .pop{bottom:78px}.blue .pop{top:78px}
+.pop-title{text-align:center;font-size:13px;font-weight:900;margin-bottom:7px}
+.opts{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.opts button{border:0;border-radius:10px;background:#fff1;color:#fff;padding:10px 2px;font-weight:900;touch-action:manipulation}
+.opts button:active{background:#fff4}
+.overlay{position:absolute;z-index:100;inset:0;background:#0008;display:none;align-items:center;justify-content:center;padding:25px}
+.overlay.show{display:flex}
+.modal{width:min(88vw,390px);background:#191919;border:1px solid #fff3;border-radius:24px;padding:25px;text-align:center;box-shadow:0 20px 60px #000b}
+.modal h1{font-size:30px;margin:0 0 8px}.final{font-size:45px;font-weight:950}.modal p{opacity:.8;margin:8px 0 20px}
+.modal button{width:100%;border:0;border-radius:13px;padding:14px;margin-top:8px;font-weight:900}.new{background:#fff;color:#111}.cancel{background:#fff1;color:#fff}
+.small-note{font-size:10px;opacity:.65;margin-top:2px}
+@media (orientation:landscape){.app{display:none}.landscape{display:flex!important;position:fixed;inset:0;background:#111;color:#fff;align-items:center;justify-content:center;text-align:center;padding:30px;font-weight:800}}
+.landscape{display:none}
+</style>
+</head>
+<body>
+<div class="app">
+<section class="player red" id="red">
+  <div class="label">ROSSO</div><div class="score" id="redScore">0</div>
+  <div class="pop" id="redPop"><div class="pop-title" id="redTitle"></div><div class="opts" id="redOpts"></div></div>
+  <div class="grid">
+    <button class="card" data-p="red" data-t="settebello">SETTEBELLO<span class="val">+1</span></button>
+    <button class="card" data-p="red" data-t="primiera">PRIMIERA<span class="val">+1</span></button>
+    <button class="card" data-p="red" data-t="denari">DENARI<span class="val">+1</span></button>
+    <button class="card" data-p="red" data-t="carte">CARTE<span class="val">+1</span></button>
+    <button class="card" data-p="red" data-t="piccola">PICCOLA<span class="val">—</span></button>
+    <button class="card" data-p="red" data-t="grande">GRANDE<span class="val">—</span></button>
+    <button class="card" data-p="red" data-t="scope">SCOPE<span class="val">+0</span></button>
+    <button class="card" data-p="red" data-t="buona">BUONA<span class="val">+10</span></button>
+  </div>
+</section>
+
+<section class="player blue" id="blue">
+  <div class="score" id="blueScore">0</div><div class="label">BLU</div>
+  <div class="pop" id="bluePop"><div class="pop-title" id="blueTitle"></div><div class="opts" id="blueOpts"></div></div>
+  <div class="grid">
+    <button class="card" data-p="blue" data-t="settebello">SETTEBELLO<span class="val">+1</span></button>
+    <button class="card" data-p="blue" data-t="primiera">PRIMIERA<span class="val">+1</span></button>
+    <button class="card" data-p="blue" data-t="denari">DENARI<span class="val">+1</span></button>
+    <button class="card" data-p="blue" data-t="carte">CARTE<span class="val">+1</span></button>
+    <button class="card" data-p="blue" data-t="piccola">PICCOLA<span class="val">—</span></button>
+    <button class="card" data-p="blue" data-t="grande">GRANDE<span class="val">—</span></button>
+    <button class="card" data-p="blue" data-t="scope">SCOPE<span class="val">+0</span></button>
+    <button class="card" data-p="blue" data-t="buona">BUONA<span class="val">+10</span></button>
+  </div>
+</section>
+
+<button class="finish" id="finish">FINE</button>
+<div class="wins">VITTORIE<b><span id="rw">0</span> — <span id="bw">0</span></b></div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h1 id="winner"></h1>
+    <div class="final" id="final"></div>
+    <p id="winline"></p>
+    <button class="new" id="new">NUOVA PARTITA</button>
+    <button class="cancel" id="cancel">CHIUDI</button>
+  </div>
+</div>
+</div>
+<div class="landscape">↻<br><br>Ruota l'iPhone in verticale per giocare.</div>
+
+<script>
+const S={red:{score:0,wins:0,scope:0,used:{}},blue:{score:0,wins:0,scope:0,used:{}}};
+const names={settebello:"SETTEBELLO",primiera:"PRIMIERA",denari:"DENARI",carte:"CARTE",piccola:"PICCOLA",grande:"GRANDE"};
+const vals=[1,2,3,4,5,6,7,8,9,10];
+
+function render(p){
+ document.getElementById(p+"Score").textContent=S[p].score;
+ document.getElementById(p+"Opts").querySelectorAll("button").forEach(()=>{});
+ document.querySelectorAll(`[data-p="${p}"]`).forEach(b=>{
+   const t=b.dataset.t,v=b.querySelector(".val");
+   if(t==="scope")v.textContent="+"+S[p].scope;
+ });
+ document.getElementById("rw").textContent=S.red.wins;
+ document.getElementById("bw").textContent=S.blue.wins;
+}
+function panel(p,t){
+ const pop=document.getElementById(p+"Pop"), title=document.getElementById(p+"Title"), opts=document.getElementById(p+"Opts");
+ title.textContent=names[t]+" — scegli il valore";
+ opts.innerHTML="";
+ vals.forEach(n=>{
+  const b=document.createElement("button"); b.textContent=n;
+  b.onclick=()=>{
+   S[p].score+=n; S[p].used[t]=n;
+   const card=document.querySelector(`[data-p="${p}"][data-t="${t}"]`);
+   card.classList.add("done");card.querySelector(".val").textContent="+"+n;
+   pop.classList.remove("open");render(p);
+  };
+  opts.appendChild(b);
+ });
+ pop.classList.add("open");
+}
+document.querySelectorAll(".card").forEach(b=>b.addEventListener("click",()=>{
+ const p=b.dataset.p,t=b.dataset.t;
+ if(t==="piccola"||t==="grande"){panel(p,t);return}
+ if(t==="scope"){
+  S[p].scope++;S[p].score++;b.classList.add("active");
+  b.querySelectorAll(".badge").forEach(x=>x.remove());
+  const badge=document.createElement("span");badge.className="badge";badge.textContent="+"+S[p].scope;b.appendChild(badge);
+  render(p);return;
+ }
+ if(S[p].used[t])return;
+ S[p].used[t]=1;S[p].score+=(t==="buona"?10:1);b.classList.add("done");render(p);
+}));
+document.addEventListener("click",e=>{
+ if(!e.target.closest(".pop")&&!e.target.closest(".card"))
+  document.querySelectorAll(".pop").forEach(x=>x.classList.remove("open"));
+});
+document.getElementById("finish").onclick=()=>{
+ const r=S.red.score,b=S.blue.score;
+ if(r>b){S.red.wins++;winner.textContent="🔴 ROSSO VINCE!"}
+ else if(b>r){S.blue.wins++;winner.textContent="🔵 BLU VINCE!"}
+ else winner.textContent="PAREGGIO";
+ final.textContent=r+" — "+b;winline.textContent="Vittorie: "+S.red.wins+" — "+S.blue.wins;
+ render("red");render("blue");overlay.classList.add("show");
+};
+function reset(){
+ ["red","blue"].forEach(p=>{
+  S[p].score=0;S[p].scope=0;S[p].used={};
+  document.querySelectorAll(`[data-p="${p}"]`).forEach(b=>{
+   b.classList.remove("done","active");b.querySelectorAll(".badge").forEach(x=>x.remove());
+   const t=b.dataset.t;b.querySelector(".val").textContent=t==="buona"?"+10":(t==="piccola"||t==="grande"?"—":t==="scope"?"+0":"+1");
+  });
+  render(p);
+ });
+ overlay.classList.remove("show");
+}
+new.onclick=reset;cancel.onclick=()=>overlay.classList.remove("show");
+render("red");render("blue");
+</script>
+</body>
+</html>
