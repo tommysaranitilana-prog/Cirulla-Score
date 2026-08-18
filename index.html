@@ -19,11 +19,9 @@
     }
   </script>
 
-  <!-- Meta per WebApp iOS full screen -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Cirulla">
-  <meta name="theme-color" content="#1B3B6F">
 
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
@@ -34,9 +32,10 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700;800&display=swap');
     
-    html, body {
-      width: 100%;
-      height: 100%;
+    html, body, #root {
+      width: 100vw;
+      height: 100dvh;
+      min-height: -webkit-fill-available;
       margin: 0;
       padding: 0;
       overflow: hidden;
@@ -45,19 +44,7 @@
       -webkit-user-select: none;
       user-select: none;
       font-family: 'Inter', sans-serif;
-      /* Impostiamo lo sfondo blu per Safari così la barra inferiore prende il colore del Blu */
-      background-color: #0B1830;
-    }
-
-    #root {
-      width: 100vw;
-      height: 100dvh;
-      min-height: -webkit-fill-available;
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      background-color: #000;
     }
 
     .cirulla-score { font-family: 'Bebas Neue', 'Inter', sans-serif; letter-spacing: 0.02em; }
@@ -79,7 +66,7 @@
     .cirulla-toast { animation: cirullaToast 900ms ease-in-out forwards; }
   </style>
 </head>
-<body class="text-white antialiased">
+<body class="bg-black text-white antialiased">
 
   <div id="root"></div>
 
@@ -442,7 +429,7 @@
       const BLUE_ACCENT = "#2E6FE0";
 
       return (
-        <div className="fixed inset-0 w-full h-[100dvh] flex flex-col overflow-hidden select-none touch-none">
+        <div className="fixed top-0 bottom-0 left-0 right-0 w-full h-[100dvh] flex flex-col overflow-hidden select-none touch-none bg-black">
           {/* ROSSO — Metà Superiore */}
           <div className="relative flex-1 basis-1/2 flex flex-col overflow-hidden" style={{ background: `radial-gradient(ellipse at 50% 0%, ${RED_ACCENT} 0%, ${RED} 55%, #6E1219 100%)` }}>
             <div className="relative flex flex-col flex-1 w-full h-full" style={{ transform: "rotate(180deg)" }}>
