@@ -1,5 +1,6 @@
-const CACHE_NAME = 'cirulla-v4';
+const CACHE_NAME = 'cirulla-v4'; // Aggiornato per forzare l'aggiornamento dell'HTML
 
+// File locali fondamentali
 const LOCAL_ASSETS = [
   './',
   './index.html',
@@ -7,6 +8,7 @@ const LOCAL_ASSETS = [
   './icon.PNG'
 ];
 
+// Librerie esterne
 const EXTERNAL_ASSETS = [
   'https://unpkg.com/react@18/umd/react.production.min.js',
   'https://unpkg.com/react-dom@18/umd/react-dom.production.min.js',
@@ -16,16 +18,11 @@ const EXTERNAL_ASSETS = [
   'https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700;800&display=swap'
 ];
 
+// Installazione e salvataggio file in memoria
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(async (cache) => {
-      await Promise.all(
-        LOCAL_ASSETS.map((asset) =>
-          fetch(asset, { cache: 'reload' })
-            .then((response) => cache.put(asset, response))
-            .catch((err) => console.warn('Impossibile salvare la risorsa locale:', asset, err))
-        )
-      );
+      await cache.addAll(LOCAL_ASSETS);
       for (const asset of EXTERNAL_ASSETS) {
         try {
           await cache.add(asset);
@@ -38,6 +35,7 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
+// Attivazione e cancellazione vecchie cache (v3, v2, ecc.)
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
@@ -53,39 +51,17 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-function isLocalAsset(request) {
-  const url = new URL(request.url);
-  return url.origin === self.location.origin;
-}
-
+// Strategia di caricamento Offline
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
-  // Local assets: Network First
-  if (isLocalAsset(event.request)) {
-    event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          if (response && (response.status === 200 || response.type === 'opaque')) {
-            const responseClone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
-          }
-          return response;
-        })
-        .catch(() => caches.match(event.request))
-    );
-    return;
-  }
-
-  // External CDN assets: Cache First
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
         return cachedResponse;
       }
       return fetch(event.request).then((response) => {
-        // Accetta sia status 200 che status 0 (opaque da CDN esterne)
-        if (response && (response.status === 200 || response.type === 'opaque')) {
+        if (response.status === 200) {
           const responseClone = response.clone();
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(event.request, responseClone);
