@@ -32,13 +32,15 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700;800&display=swap');
     
-    /* Blocco totale di zoom, gesture di scorrimento e selezioni per garantire il Multitouch perfetto */
     html, body, #root {
-      width: 100%;
-      height: 100%;
+      width: 100vw;
+      height: 100vh;
+      width: 100dvw;
+      height: 100dvh;
       margin: 0;
       padding: 0;
       overflow: hidden;
+      background-color: #000;
       touch-action: none;
       -webkit-touch-callout: none;
       -webkit-user-select: none;
@@ -295,7 +297,6 @@
       const [confirmReset, setConfirmReset] = useState(false);
       const toastTimer = useRef(null);
 
-      // Mantiene lo schermo attivo
       useEffect(() => {
         let wakeLock = null;
         let cancelled = false;
@@ -428,14 +429,14 @@
       const BLUE_ACCENT = "#2E6FE0";
 
       return (
-        <div className="fixed inset-0 flex flex-col overflow-hidden select-none touch-none">
+        <div className="fixed inset-0 w-full h-full flex flex-col overflow-hidden select-none touch-none">
           {/* ROSSO — Metà Superiore */}
           <div className="relative flex-1 basis-1/2 flex flex-col overflow-hidden" style={{ background: `radial-gradient(ellipse at 50% 0%, ${RED_ACCENT} 0%, ${RED} 55%, #6E1219 100%)` }}>
             <div className="relative flex flex-col flex-1 w-full h-full" style={{ transform: "rotate(180deg)" }}>
-              <div className="flex flex-col items-center" style={{ paddingTop: 76 }}>
-                <span className="cirulla-score leading-none" style={{ fontSize: "min(22vw, 108px)", color: "#FFF8EA" }}>{redScore}</span>
+              <div className="flex flex-col items-center" style={{ paddingTop: "max(env(safe-area-inset-top), 28px)" }}>
+                <span className="cirulla-score leading-none" style={{ fontSize: "min(20vw, 96px)", color: "#FFF8EA" }}>{redScore}</span>
               </div>
-              <div className="absolute left-4 top-6 flex flex-col items-center">
+              <div className="absolute left-4 top-6 flex flex-col items-center" style={{ marginTop: "env(safe-area-inset-top)" }}>
                 <span className="text-[9px] font-bold tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.8)" }}>Vittorie</span>
                 <span className="cirulla-score leading-none" style={{ fontSize: 34, color: "#FFFFFF" }}>{vittorie.red}</span>
               </div>
@@ -457,7 +458,7 @@
                   <ToggleCell label="Carte" iconName="layers" active={red.carte} showValue={false} accent={RED_ACCENT} onClick={() => toggle("red", "carte")} />
                 </div>
               </div>
-              <div className="flex flex-col items-center pt-1" style={{ paddingBottom: "max(env(safe-area-inset-top),16px)" }}>
+              <div className="flex flex-col items-center pt-1 pb-2">
                 <span className="text-[14px] font-extrabold tracking-[0.35em]" style={{ color: "#FBE4C8" }}>ROSSO</span>
               </div>
             </div>
@@ -465,8 +466,8 @@
 
           {/* BLU — Metà Inferiore */}
           <div className="relative flex-1 basis-1/2 flex flex-col overflow-hidden" style={{ background: `radial-gradient(ellipse at 50% 100%, ${BLUE_ACCENT} 0%, ${BLUE} 55%, #0B1830 100%)` }}>
-            <div className="flex flex-col items-center" style={{ paddingTop: 76 }}>
-              <span className="cirulla-score leading-none" style={{ fontSize: "min(22vw, 108px)", color: "#EAF1FF" }}>{blueScore}</span>
+            <div className="flex flex-col items-center" style={{ paddingTop: 28 }}>
+              <span className="cirulla-score leading-none" style={{ fontSize: "min(20vw, 96px)", color: "#EAF1FF" }}>{blueScore}</span>
             </div>
             <div className="absolute right-4 top-6 flex flex-col items-center">
               <span className="text-[9px] font-bold tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.8)" }}>Vittorie</span>
@@ -490,7 +491,7 @@
                 <ToggleCell label="Carte" iconName="layers" active={blue.carte} showValue={false} accent={BLUE_ACCENT} onClick={() => toggle("blue", "carte")} />
               </div>
             </div>
-            <div className="flex flex-col items-center pb-[max(env(safe-area-inset-bottom),16px)] pt-1">
+            <div className="flex flex-col items-center pt-1" style={{ paddingBottom: "max(env(safe-area-inset-bottom), 12px)" }}>
               <span className="text-[14px] font-extrabold tracking-[0.35em]" style={{ color: "#BFD3FA" }}>BLU</span>
             </div>
           </div>
