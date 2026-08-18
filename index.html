@@ -32,10 +32,10 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700;800&display=swap');
     
-    /* Blocco totale di zoom, gesture di scorrimento e selezioni per garantire il Multitouch perfetto */
     html, body, #root {
-      width: 100%;
-      height: 100%;
+      width: 100vw;
+      height: 100dvh;
+      min-height: -webkit-fill-available;
       margin: 0;
       padding: 0;
       overflow: hidden;
@@ -44,6 +44,7 @@
       -webkit-user-select: none;
       user-select: none;
       font-family: 'Inter', sans-serif;
+      background-color: #000;
     }
 
     .cirulla-score { font-family: 'Bebas Neue', 'Inter', sans-serif; letter-spacing: 0.02em; }
@@ -428,11 +429,11 @@
       const BLUE_ACCENT = "#2E6FE0";
 
       return (
-        <div className="fixed inset-0 flex flex-col overflow-hidden select-none touch-none">
+        <div className="fixed top-0 bottom-0 left-0 right-0 w-full h-[100dvh] flex flex-col overflow-hidden select-none touch-none bg-black">
           {/* ROSSO — Metà Superiore */}
           <div className="relative flex-1 basis-1/2 flex flex-col overflow-hidden" style={{ background: `radial-gradient(ellipse at 50% 0%, ${RED_ACCENT} 0%, ${RED} 55%, #6E1219 100%)` }}>
             <div className="relative flex flex-col flex-1 w-full h-full" style={{ transform: "rotate(180deg)" }}>
-              <div className="flex flex-col items-center" style={{ paddingTop: 76 }}>
+              <div className="flex flex-col items-center justify-center pt-2">
                 <span className="cirulla-score leading-none" style={{ fontSize: "min(22vw, 108px)", color: "#FFF8EA" }}>{redScore}</span>
               </div>
               <div className="absolute left-4 top-6 flex flex-col items-center">
@@ -465,33 +466,35 @@
 
           {/* BLU — Metà Inferiore */}
           <div className="relative flex-1 basis-1/2 flex flex-col overflow-hidden" style={{ background: `radial-gradient(ellipse at 50% 100%, ${BLUE_ACCENT} 0%, ${BLUE} 55%, #0B1830 100%)` }}>
-            <div className="flex flex-col items-center" style={{ paddingTop: 76 }}>
-              <span className="cirulla-score leading-none" style={{ fontSize: "min(22vw, 108px)", color: "#EAF1FF" }}>{blueScore}</span>
-            </div>
-            <div className="absolute right-4 top-6 flex flex-col items-center">
-              <span className="text-[9px] font-bold tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.8)" }}>Vittorie</span>
-              <span className="cirulla-score leading-none" style={{ fontSize: 34, color: "#FFFFFF" }}>{vittorie.blue}</span>
-            </div>
-            <div className="flex-1" />
-            <div className="relative px-3 pb-1">
-              {popover === "blue-piccola" && (
-                <RunPopover title="Piccola" cards={PICCOLA_CARDS} value={blue.piccola} onSelect={(v) => setPiccola("blue", v)} onClose={() => setPopover(null)} accent={BLUE_ACCENT} openDir="up" />
-              )}
-              <div className="grid grid-cols-4 gap-2 mb-2">
-                <RunCell label="Piccola" iconName="chevrons-down" value={blue.piccola} accent={BLUE_ACCENT} onOpen={() => setPopover(popover === "blue-piccola" ? null : "blue-piccola")} />
-                <ToggleCell label="Grande" iconName="chevrons-up" active={blue.grande} points={5} accent={BLUE_ACCENT} onClick={() => toggle("blue", "grande")} />
-                <ScopeCell value={blue.scope} accent={BLUE_ACCENT} onTap={() => bumpScope("blue")} onReset={() => resetScope("blue")} />
-                <BuonaCell value={blue.buona} accent={BLUE_ACCENT} onTap={() => bumpBuona("blue")} onReset={() => resetBuona("blue")} />
+            <div className="relative flex flex-col flex-1 w-full h-full">
+              <div className="flex flex-col items-center justify-center pt-2">
+                <span className="cirulla-score leading-none" style={{ fontSize: "min(22vw, 108px)", color: "#EAF1FF" }}>{blueScore}</span>
               </div>
-              <div className="grid grid-cols-4 gap-2">
-                <ToggleCell label="Settebello" iconName="gem" active={blue.settebello} showValue={false} accent={BLUE_ACCENT} onClick={() => toggle("blue", "settebello")} />
-                <CustomToggleCell label="Primiera" active={blue.primiera} accent={BLUE_ACCENT} onClick={() => toggle("blue", "primiera")}><SevenIcon /></CustomToggleCell>
-                <ToggleCell label="Denari" iconName="coins" active={blue.denari} showValue={false} accent={BLUE_ACCENT} onClick={() => toggle("blue", "denari")} />
-                <ToggleCell label="Carte" iconName="layers" active={blue.carte} showValue={false} accent={BLUE_ACCENT} onClick={() => toggle("blue", "carte")} />
+              <div className="absolute right-4 top-6 flex flex-col items-center">
+                <span className="text-[9px] font-bold tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.8)" }}>Vittorie</span>
+                <span className="cirulla-score leading-none" style={{ fontSize: 34, color: "#FFFFFF" }}>{vittorie.blue}</span>
               </div>
-            </div>
-            <div className="flex flex-col items-center pb-[max(env(safe-area-inset-bottom),16px)] pt-1">
-              <span className="text-[14px] font-extrabold tracking-[0.35em]" style={{ color: "#BFD3FA" }}>BLU</span>
+              <div className="flex-1" />
+              <div className="relative px-3 pb-1">
+                {popover === "blue-piccola" && (
+                  <RunPopover title="Piccola" cards={PICCOLA_CARDS} value={blue.piccola} onSelect={(v) => setPiccola("blue", v)} onClose={() => setPopover(null)} accent={BLUE_ACCENT} openDir="up" />
+                )}
+                <div className="grid grid-cols-4 gap-2 mb-2">
+                  <RunCell label="Piccola" iconName="chevrons-down" value={blue.piccola} accent={BLUE_ACCENT} onOpen={() => setPopover(popover === "blue-piccola" ? null : "blue-piccola")} />
+                  <ToggleCell label="Grande" iconName="chevrons-up" active={blue.grande} points={5} accent={BLUE_ACCENT} onClick={() => toggle("blue", "grande")} />
+                  <ScopeCell value={blue.scope} accent={BLUE_ACCENT} onTap={() => bumpScope("blue")} onReset={() => resetScope("blue")} />
+                  <BuonaCell value={blue.buona} accent={BLUE_ACCENT} onTap={() => bumpBuona("blue")} onReset={() => resetBuona("blue")} />
+                </div>
+                <div className="grid grid-cols-4 gap-2">
+                  <ToggleCell label="Settebello" iconName="gem" active={blue.settebello} showValue={false} accent={BLUE_ACCENT} onClick={() => toggle("blue", "settebello")} />
+                  <CustomToggleCell label="Primiera" active={blue.primiera} accent={BLUE_ACCENT} onClick={() => toggle("blue", "primiera")}><SevenIcon /></CustomToggleCell>
+                  <ToggleCell label="Denari" iconName="coins" active={blue.denari} showValue={false} accent={BLUE_ACCENT} onClick={() => toggle("blue", "denari")} />
+                  <ToggleCell label="Carte" iconName="layers" active={blue.carte} showValue={false} accent={BLUE_ACCENT} onClick={() => toggle("blue", "carte")} />
+                </div>
+              </div>
+              <div className="flex flex-col items-center pb-[max(env(safe-area-inset-bottom),16px)] pt-1">
+                <span className="text-[14px] font-extrabold tracking-[0.35em]" style={{ color: "#BFD3FA" }}>BLU</span>
+              </div>
             </div>
           </div>
 
