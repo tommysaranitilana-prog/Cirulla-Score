@@ -1,0 +1,16 @@
+{
+  "short_name": "Cirulla",
+  "name": "Cirulla Scoreboard",
+  "icons": [
+    {
+      "src": "icon.PNG",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "display": "standalone",
+  "orientation": "portrait"
+}
