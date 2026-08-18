@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cirulla-v10'; // Aggiornato per forzare l'aggiornamento dell'HTML
+const CACHE_NAME = 'cirulla-v11'; // Aggiornato per forzare l'aggiornamento dell'HTML
 
 // File locali fondamentali
 const LOCAL_ASSETS = [
