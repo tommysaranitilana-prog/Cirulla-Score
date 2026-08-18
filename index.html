@@ -433,15 +433,10 @@
           {/* ROSSO — Metà Superiore */}
           <div className="relative flex-1 basis-1/2 flex flex-col overflow-hidden" style={{ background: `radial-gradient(ellipse at 50% 0%, ${RED_ACCENT} 0%, ${RED} 55%, #6E1219 100%)` }}>
             <div className="relative flex flex-col flex-1 w-full h-full" style={{ transform: "rotate(180deg)" }}>
-              <div className="flex flex-col items-center justify-center pt-2">
-                <span className="cirulla-score leading-none" style={{ fontSize: "min(22vw, 108px)", color: "#FFF8EA" }}>{redScore}</span>
+              <div className="flex flex-col items-center" style={{ paddingTop: "max(env(safe-area-inset-top), 16px)" }}>
+                <span className="text-[14px] font-extrabold tracking-[0.35em]" style={{ color: "#FBE4C8" }}>ROSSO</span>
               </div>
-              <div className="absolute left-4 top-6 flex flex-col items-center">
-                <span className="text-[9px] font-bold tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.8)" }}>Vittorie</span>
-                <span className="cirulla-score leading-none" style={{ fontSize: 34, color: "#FFFFFF" }}>{vittorie.red}</span>
-              </div>
-              <div className="flex-1" />
-              <div className="relative px-3 pb-1">
+              <div className="relative px-3 pb-1 pt-1">
                 {popover === "red-piccola" && (
                   <RunPopover title="Piccola" cards={PICCOLA_CARDS} value={red.piccola} onSelect={(v) => setPiccola("red", v)} onClose={() => setPopover(null)} accent={RED_ACCENT} openDir="up" />
                 )}
@@ -458,19 +453,24 @@
                   <ToggleCell label="Carte" iconName="layers" active={red.carte} showValue={false} accent={RED_ACCENT} onClick={() => toggle("red", "carte")} />
                 </div>
               </div>
-              <div className="flex flex-col items-center pt-1" style={{ paddingBottom: "max(env(safe-area-inset-top),16px)" }}>
-                <span className="text-[14px] font-extrabold tracking-[0.35em]" style={{ color: "#FBE4C8" }}>ROSSO</span>
+              <div className="flex-1" />
+              <div className="flex flex-col items-center justify-center pb-2">
+                <span className="cirulla-score leading-none" style={{ fontSize: "min(22vw, 108px)", color: "#FFF8EA" }}>{redScore}</span>
+              </div>
+              <div className="absolute right-4 bottom-4 flex flex-col items-center">
+                <span className="text-[9px] font-bold tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.8)" }}>Vittorie</span>
+                <span className="cirulla-score leading-none" style={{ fontSize: 34, color: "#FFFFFF" }}>{vittorie.red}</span>
               </div>
             </div>
           </div>
 
-          {/* BLU — Metà Inferiore */}
+          {/* BLU — Metà Inferiore (Speculare rispetto al centro) */}
           <div className="relative flex-1 basis-1/2 flex flex-col overflow-hidden" style={{ background: `radial-gradient(ellipse at 50% 100%, ${BLUE_ACCENT} 0%, ${BLUE} 55%, #0B1830 100%)` }}>
             <div className="relative flex flex-col flex-1 w-full h-full">
               <div className="flex flex-col items-center justify-center pt-2">
                 <span className="cirulla-score leading-none" style={{ fontSize: "min(22vw, 108px)", color: "#EAF1FF" }}>{blueScore}</span>
               </div>
-              <div className="absolute right-4 top-6 flex flex-col items-center">
+              <div className="absolute right-4 top-4 flex flex-col items-center">
                 <span className="text-[9px] font-bold tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.8)" }}>Vittorie</span>
                 <span className="cirulla-score leading-none" style={{ fontSize: 34, color: "#FFFFFF" }}>{vittorie.blue}</span>
               </div>
