@@ -2,42 +2,52 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Cirulla Scoreboard</title>
   <link rel="apple-touch-icon" href="icon.PNG">
+  <link rel="icon" type="image/png" href="icon.PNG">
+  <link rel="manifest" href="manifest.json">
 
-<link rel="icon" type="image/png" href="icon.PNG">
-<!-- Collegamento al Manifest della PWA -->
-<link rel="manifest" href="manifest.json">
+  <!-- Service Worker per uso offline -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(() => console.log('App pronta per l\'uso offline!'))
+          .catch((err) => console.log('Errore Service Worker:', err));
+      });
+    }
+  </script>
 
-<!-- Script per attivare la funzione Offline su iPhone/Android -->
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js')
-        .then(() => console.log('App pronta per l\'uso offline!'))
-        .catch((err) => console.log('Errore Service Worker:', err));
-    });
-  }
-</script>
-
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Cirulla">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Cirulla">
 
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  
   <script src="https://cdn.tailwindcss.com"></script>
-  
   <script src="https://unpkg.com/lucide@latest"></script>
   
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700;800&display=swap');
-    body { font-family: 'Inter', sans-serif; touch-action: manipulation; }
+    
+    /* Blocco totale di zoom, gesture di scorrimento e selezioni per garantire il Multitouch perfetto */
+    html, body, #root {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      touch-action: none;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+      font-family: 'Inter', sans-serif;
+    }
+
     .cirulla-score { font-family: 'Bebas Neue', 'Inter', sans-serif; letter-spacing: 0.02em; }
+
     @keyframes cirullaStreak {
       0% { transform: translateY(0) scale(0.6); opacity: 0; }
       15% { transform: translateY(-6px) scale(1.15); opacity: 1; }
@@ -45,6 +55,7 @@
       100% { transform: translateY(-34px) scale(0.9); opacity: 0; }
     }
     .cirulla-streak { animation: cirullaStreak 650ms ease-out forwards; }
+
     @keyframes cirullaToast { 
       0% { opacity: 0; transform: translate(-50%, -6px); } 
       12% { opacity: 1; transform: translate(-50%, 0); } 
@@ -54,14 +65,13 @@
     .cirulla-toast { animation: cirullaToast 900ms ease-in-out forwards; }
   </style>
 </head>
-<body class="bg-black text-white antialiased select-none">
+<body class="bg-black text-white antialiased">
 
   <div id="root"></div>
 
   <script type="text/babel">
     const { useState, useRef, useCallback, useEffect } = React;
 
-    // Componente per renderizzare le icone Lucide in HTML React
     function LucideIcon({ name, size = 18, color = "#FBF3DE", strokeWidth = 2.25, className = "" }) {
       const ref = useRef(null);
       useEffect(() => {
@@ -76,7 +86,7 @@
         }
       }, [name, size, color, strokeWidth]);
 
-      return <span ref={ref} class={`inline-flex items-center justify-center ${className}`}></span>;
+      return <span ref={ref} className={`inline-flex items-center justify-center ${className}`}></span>;
     }
 
     const PICCOLA_CARDS = ["A", "2", "3", "4", "5", "6"];
@@ -106,12 +116,11 @@
       return (
         <button
           onPointerDown={(e) => { e.preventDefault(); onClick(); }}
-          className="relative flex flex-col items-center justify-center gap-1 rounded-2xl px-2 py-3 transition-all duration-150 active:scale-95 select-none touch-manipulation"
+          className="relative flex flex-col items-center justify-center gap-1 rounded-2xl px-2 py-3 transition-all duration-150 active:scale-95 select-none touch-none"
           style={{
             background: active ? `linear-gradient(155deg, ${accent}ee, ${accent}bb)` : "rgba(255,255,255,0.08)",
             border: active ? "1.5px solid rgba(255,255,255,0.85)" : "1.5px solid rgba(255,255,255,0.16)",
             boxShadow: active ? "0 4px 14px rgba(0,0,0,0.35)" : "none",
-            touchAction: "manipulation",
           }}
         >
           <LucideIcon name={iconName} size={18} color="#FBF3DE" />
@@ -129,12 +138,11 @@
       return (
         <button
           onPointerDown={(e) => { e.preventDefault(); onClick(); }}
-          className="relative flex flex-col items-center justify-center gap-1 rounded-2xl px-2 py-3 transition-all duration-150 active:scale-95 select-none touch-manipulation"
+          className="relative flex flex-col items-center justify-center gap-1 rounded-2xl px-2 py-3 transition-all duration-150 active:scale-95 select-none touch-none"
           style={{
             background: active ? `linear-gradient(155deg, ${accent}ee, ${accent}bb)` : "rgba(255,255,255,0.08)",
             border: active ? "1.5px solid rgba(255,255,255,0.85)" : "1.5px solid rgba(255,255,255,0.16)",
             boxShadow: active ? "0 4px 14px rgba(0,0,0,0.35)" : "none",
-            touchAction: "manipulation",
           }}
         >
           {children}
@@ -148,12 +156,11 @@
       return (
         <button
           onPointerDown={(e) => { e.preventDefault(); onOpen(); }}
-          className="relative flex flex-col items-center justify-center gap-1 rounded-2xl px-2 py-3 transition-all duration-150 active:scale-95 select-none touch-manipulation"
+          className="relative flex flex-col items-center justify-center gap-1 rounded-2xl px-2 py-3 transition-all duration-150 active:scale-95 select-none touch-none"
           style={{
             background: active ? `linear-gradient(155deg, ${accent}ee, ${accent}bb)` : "rgba(255,255,255,0.08)",
             border: active ? "1.5px solid rgba(255,255,255,0.85)" : "1.5px solid rgba(255,255,255,0.16)",
             boxShadow: active ? "0 4px 14px rgba(0,0,0,0.35)" : "none",
-            touchAction: "manipulation",
           }}
         >
           <LucideIcon name={iconName} size={18} color="#FBF3DE" />
@@ -176,14 +183,14 @@
 
       return (
         <div
-          className="relative flex flex-col items-center justify-center gap-1 rounded-2xl px-2 py-3 overflow-hidden select-none"
+          className="relative flex flex-col items-center justify-center gap-1 rounded-2xl px-2 py-3 overflow-hidden select-none touch-none"
           style={{
             background: active ? `linear-gradient(155deg, ${accent}ee, ${accent}bb)` : "rgba(255,255,255,0.08)",
             border: active ? "1.5px solid rgba(255,255,255,0.85)" : "1.5px solid rgba(255,255,255,0.16)",
             boxShadow: active ? "0 4px 14px rgba(0,0,0,0.35)" : "none",
           }}
         >
-          <button onPointerDown={(e) => { e.preventDefault(); handleTap(); }} className="flex flex-col items-center gap-1 w-full transition-transform duration-100 active:scale-95 touch-manipulation" style={{ touchAction: "manipulation" }}>
+          <button onPointerDown={(e) => { e.preventDefault(); handleTap(); }} className="flex flex-col items-center gap-1 w-full transition-transform duration-100 active:scale-95 touch-none">
             <LucideIcon name="flame" size={18} color="#FBF3DE" />
             <span className="text-[11px] tracking-wide font-semibold uppercase" style={{ color: "#FBF3DE" }}>Scope</span>
             <span className="text-[13px] font-bold" style={{ color: active ? "#FFF6DD" : "rgba(251,243,222,0.55)" }}>
@@ -191,7 +198,7 @@
             </span>
           </button>
           {active && (
-            <button onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); onReset(); }} className="absolute top-1 right-1 rounded-full flex items-center justify-center touch-manipulation" style={{ width: 22, height: 22, background: "rgba(0,0,0,0.85)", border: "1.5px solid rgba(255,255,255,0.7)", touchAction: "manipulation" }}>
+            <button onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); onReset(); }} className="absolute top-1 right-1 rounded-full flex items-center justify-center touch-none" style={{ width: 22, height: 22, background: "rgba(0,0,0,0.85)", border: "1.5px solid rgba(255,255,255,0.7)" }}>
               <LucideIcon name="rotate-ccw" size={13} color="#FFFFFF" />
             </button>
           )}
@@ -215,14 +222,14 @@
 
       return (
         <div
-          className="relative flex flex-col items-center justify-center gap-1 rounded-2xl px-2 py-3 overflow-hidden select-none"
+          className="relative flex flex-col items-center justify-center gap-1 rounded-2xl px-2 py-3 overflow-hidden select-none touch-none"
           style={{
             background: active ? `linear-gradient(155deg, ${accent}ee, ${accent}bb)` : "rgba(255,255,255,0.08)",
             border: active ? "1.5px solid rgba(255,255,255,0.85)" : "1.5px solid rgba(255,255,255,0.16)",
             boxShadow: active ? "0 4px 14px rgba(0,0,0,0.35)" : "none",
           }}
         >
-          <button onPointerDown={(e) => { e.preventDefault(); handleTap(); }} className="flex flex-col items-center gap-1 w-full transition-transform duration-100 active:scale-95 touch-manipulation" style={{ touchAction: "manipulation" }}>
+          <button onPointerDown={(e) => { e.preventDefault(); handleTap(); }} className="flex flex-col items-center gap-1 w-full transition-transform duration-100 active:scale-95 touch-none">
             <LucideIcon name="star" size={18} color="#FBF3DE" />
             <span className="text-[11px] tracking-wide font-semibold uppercase text-center leading-tight" style={{ color: "#FBF3DE" }}>Buona 10</span>
             <span className="text-[13px] font-bold" style={{ color: active ? "#FFF6DD" : "rgba(251,243,222,0.55)" }}>
@@ -230,7 +237,7 @@
             </span>
           </button>
           {active && (
-            <button onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); onReset(); }} className="absolute top-1 right-1 rounded-full flex items-center justify-center touch-manipulation" style={{ width: 22, height: 22, background: "rgba(0,0,0,0.85)", border: "1.5px solid rgba(255,255,255,0.7)", touchAction: "manipulation" }}>
+            <button onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); onReset(); }} className="absolute top-1 right-1 rounded-full flex items-center justify-center touch-none" style={{ width: 22, height: 22, background: "rgba(0,0,0,0.85)", border: "1.5px solid rgba(255,255,255,0.7)" }}>
               <LucideIcon name="rotate-ccw" size={13} color="#FFFFFF" />
             </button>
           )}
@@ -249,7 +256,7 @@
           <div className="rounded-2xl p-3 shadow-2xl" style={{ background: "rgba(15,15,17,0.94)", border: "1px solid rgba(255,255,255,0.15)", backdropFilter: "blur(6px)" }}>
             <div className="flex items-center justify-between mb-2 px-1">
               <span className="text-[12px] font-bold tracking-wider uppercase" style={{ color: "#FBF3DE" }}>{title} · fino a che numero?</span>
-              <button onPointerDown={(e) => { e.preventDefault(); onClose(); }} className="p-1 touch-manipulation" style={{ touchAction: "manipulation" }}><LucideIcon name="x" size={16} color="#FBF3DE" /></button>
+              <button onPointerDown={(e) => { e.preventDefault(); onClose(); }} className="p-1 touch-none"><LucideIcon name="x" size={16} color="#FBF3DE" /></button>
             </div>
             <div className="flex gap-1.5 justify-center">
               {cards.map((c, i) => {
@@ -258,11 +265,10 @@
                   <button
                     key={c}
                     onPointerDown={(e) => { e.preventDefault(); onSelect(value === i + 1 ? 0 : i + 1); }}
-                    className="relative flex flex-col items-center justify-center rounded-lg w-10 h-13 py-2 transition-all duration-150 active:scale-90 touch-manipulation"
+                    className="relative flex flex-col items-center justify-center rounded-lg w-10 h-13 py-2 transition-all duration-150 active:scale-90 touch-none"
                     style={{
                       background: reached ? `linear-gradient(160deg, ${accent}, ${accent}aa)` : "rgba(255,255,255,0.06)",
                       border: reached ? "1.5px solid rgba(255,255,255,0.9)" : "1.5px dashed rgba(255,255,255,0.25)",
-                      touchAction: "manipulation",
                     }}
                   >
                     <LucideIcon name="coins" size={15} color={reached ? "#FFF6DD" : "rgba(251,243,222,0.35)"} />
@@ -289,7 +295,7 @@
       const [confirmReset, setConfirmReset] = useState(false);
       const toastTimer = useRef(null);
 
-      // Mantiene lo schermo attivo mentre l'app è in uso
+      // Mantiene lo schermo attivo
       useEffect(() => {
         let wakeLock = null;
         let cancelled = false;
@@ -422,7 +428,7 @@
       const BLUE_ACCENT = "#2E6FE0";
 
       return (
-        <div className="fixed inset-0 flex flex-col overflow-hidden">
+        <div className="fixed inset-0 flex flex-col overflow-hidden select-none touch-none">
           {/* ROSSO — Metà Superiore */}
           <div className="relative flex-1 basis-1/2 flex flex-col overflow-hidden" style={{ background: `radial-gradient(ellipse at 50% 0%, ${RED_ACCENT} 0%, ${RED} 55%, #6E1219 100%)` }}>
             <div className="relative flex flex-col flex-1 w-full h-full" style={{ transform: "rotate(180deg)" }}>
@@ -490,13 +496,13 @@
           </div>
 
           {/* Tasto Reset */}
-          <button onPointerDown={(e) => { e.preventDefault(); setConfirmReset(true); }} className="absolute left-2 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center p-2 transition-transform duration-150 active:scale-90 touch-manipulation" style={{ background: "transparent", border: "none", touchAction: "manipulation" }}>
+          <button onPointerDown={(e) => { e.preventDefault(); setConfirmReset(true); }} className="absolute left-2 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center p-2 transition-transform duration-150 active:scale-90 touch-none" style={{ background: "transparent", border: "none" }}>
             <LucideIcon name="rotate-ccw" size={26} color="#FFFFFF" />
           </button>
 
           {/* Centro: Fine Mano */}
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
-            <button onPointerDown={(e) => { e.preventDefault(); handleFineMano(); }} className="rounded-full flex flex-col items-center justify-center transition-transform duration-150 active:scale-95 touch-manipulation" style={{ width: 84, height: 84, background: "#0B0B0C", border: "4px solid #FBF3DE", boxShadow: "0 6px 20px rgba(0,0,0,0.5)", touchAction: "manipulation" }}>
+            <button onPointerDown={(e) => { e.preventDefault(); handleFineMano(); }} className="rounded-full flex flex-col items-center justify-center transition-transform duration-150 active:scale-95 touch-none" style={{ width: 84, height: 84, background: "#0B0B0C", border: "4px solid #FBF3DE", boxShadow: "0 6px 20px rgba(0,0,0,0.5)" }}>
               <span className="text-[14px] font-extrabold tracking-wider leading-tight" style={{ color: "#FBF3DE" }}>FINE</span>
               <span className="text-[10px] font-bold tracking-widest leading-tight" style={{ color: "rgba(251,243,222,0.75)" }}>MANO</span>
             </button>
@@ -508,8 +514,9 @@
             </div>
           )}
 
+          {/* Modal Conferma Reset */}
           {confirmReset && (
-            <div className="absolute inset-0 z-50 flex items-center justify-center px-6" style={{ background: "rgba(0,0,0,0.6)" }}>
+            <div className="absolute inset-0 z-50 flex items-center justify-center px-6 touch-none" style={{ background: "rgba(0,0,0,0.65)", backdropFilter: "blur(4px)" }}>
               <div className="w-full rounded-2xl p-5" style={{ maxWidth: 320, background: "rgba(15,15,17,0.97)", border: "1px solid rgba(255,255,255,0.15)", boxShadow: "0 10px 30px rgba(0,0,0,0.5)" }}>
                 <div className="flex flex-col items-center gap-2 mb-4">
                   <LucideIcon name="alert-triangle" size={28} color="#FBF3DE" />
@@ -519,15 +526,15 @@
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onPointerDown={(e) => { e.preventDefault(); setConfirmReset(false); }}
-                    className="rounded-xl py-2.5 font-bold text-[13px] tracking-wide transition-all duration-150 active:scale-95 touch-manipulation"
-                    style={{ background: "rgba(255,255,255,0.1)", border: "1.5px solid rgba(255,255,255,0.2)", color: "#FBF3DE", touchAction: "manipulation" }}
+                    className="rounded-xl py-2.5 font-bold text-[13px] tracking-wide transition-all duration-150 active:scale-95 touch-none"
+                    style={{ background: "rgba(255,255,255,0.1)", border: "1.5px solid rgba(255,255,255,0.2)", color: "#FBF3DE" }}
                   >
                     Annulla
                   </button>
                   <button
                     onPointerDown={(e) => { e.preventDefault(); resetTutto(); }}
-                    className="rounded-xl py-2.5 font-bold text-[13px] tracking-wide transition-all duration-150 active:scale-95 touch-manipulation"
-                    style={{ background: "linear-gradient(155deg, #E4572E, #C1272D)", border: "1.5px solid rgba(255,255,255,0.5)", color: "#FFF6DD", touchAction: "manipulation" }}
+                    className="rounded-xl py-2.5 font-bold text-[13px] tracking-wide transition-all duration-150 active:scale-95 touch-none"
+                    style={{ background: "linear-gradient(155deg, #E4572E, #C1272D)", border: "1.5px solid rgba(255,255,255,0.5)", color: "#FFF6DD" }}
                   >
                     Sì, azzera
                   </button>
