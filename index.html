@@ -7,6 +7,19 @@
   <link rel="apple-touch-icon" href="icon.PNG">
 
 <link rel="icon" type="image/png" href="icon.PNG">
+<!-- Collegamento al Manifest della PWA -->
+<link rel="manifest" href="manifest.json">
+
+<!-- Script per attivare la funzione Offline su iPhone/Android -->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(() => console.log('App pronta per l\'uso offline!'))
+        .catch((err) => console.log('Errore Service Worker:', err));
+    });
+  }
+</script>
 
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
